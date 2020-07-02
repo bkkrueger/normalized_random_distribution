@@ -61,6 +61,11 @@ private:
     // ------------------------------------------------------------------------
 
     void construct_coefficients_(std::array<Float, N_BINS+1> const & points) {
+        assert(points.front() == 0);
+        for (int n = 0; n < N_BINS; n++) {
+            assert(points[n] <= points[n+1]);
+        }
+        assert(points.back() == 1);
         Float x0, y0;
         Float x1{bin_edge_(0)};
         Float y1{points[0]};
@@ -92,20 +97,12 @@ public:
     template <typename std::size_t N_PTS,
         typename std::enable_if<R_exact_(N_PTS,N_BINS), bool>::type = true> 
     PiecewiseLinearFunction(std::array<Float,N_PTS> const & points_in) {
-        /*std::cout << "EXACT (N_PTS = " << N_PTS << ", N_BINS = " <<
-            N_BINS << ")" << std::endl;*/
         std::array<Float, N_BINS+1> all_points;
         all_points[0] = Float{0};
         for (int n = 0; n < N_PTS; n++) {
             all_points[n+1] = points_in[n];
         }
         all_points[N_BINS] = Float{1};
-        for (int n = 0; n < N_BINS; n++) {
-            assert(all_points[n] <= all_points[n+1]);
-        }
-        /*for (auto & point : all_points) {
-            std::cout << point << std::endl;
-        }*/
         construct_coefficients_(all_points);
     }
 
@@ -115,9 +112,17 @@ public:
     template <typename std::size_t N_PTS,
         typename std::enable_if<R_half_(N_PTS,N_BINS), bool>::type = true> 
     PiecewiseLinearFunction(std::array<Float,N_PTS> const & points_in) {
-        // TODO: implement this constructor
-        /*std::cout << " 1/2  (N_PTS = " << N_PTS << ", N_BINS = " <<
-            N_BINS << ")" << std::endl;*/
+        std::array<Float, N_BINS+1> all_points;
+        all_points[0] = Float{0};
+        for (int n = 0; n < N_PTS; n++) {
+            auto & y1 = all_points[2*n];
+            auto & y2 = points_in[n];
+            all_points[2*n+1] = Float{0.5} * (y1 + y2);
+            all_points[2*n+2] = y2;
+        }
+        all_points[N_BINS-1] = Float{0.5} * (points_in.back() + Float{1});
+        all_points[N_BINS] = Float{1};
+        construct_coefficients_(all_points);
     }
 
     // Takes any other resolution, bin-edge function values
@@ -128,9 +133,18 @@ public:
     template <typename std::size_t N_PTS,
         typename std::enable_if<R_other_(N_PTS,N_BINS), bool>::type = true> 
     PiecewiseLinearFunction(std::array<Float,N_PTS> const & points_in) {
-        // TODO: implement this constructor
-        /*std::cout << "      (N_PTS = " << N_PTS << ", N_BINS = " <<
-            N_BINS << ")" << std::endl;*/
+        PiecewiseLinearFunction<Float,N_PTS+1> temp_func(points_in);
+
+        std::array<Float, N_BINS+1> all_points;
+        all_points.front() = Float{0};
+        for (int n = 1; n < N_BINS; n++) {
+            auto x = bin_edge_(n);
+            all_points[n] = temp_func(x);
+        }
+        all_points.back() = Float{1};
+
+        // Construct coefficients off of the newly-interpolated points.
+        construct_coefficients_(all_points);
     }
 
     // ------------------------------------------------------------------------

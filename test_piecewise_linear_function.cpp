@@ -10,13 +10,17 @@ void test() {
     using Float = double;
 
     std::array<Float,N> arr;
-    for (int n = 1; n < N; n++) {
-        arr[n] = Float(n) / Float{N};
+    for (int n = 0; n < N; n++) {
+        arr[n] = Float(n+1) / Float{N+1};
     }
 
     constexpr int N_BINS = 8;
     PiecewiseLinearFunction<Float, N_BINS> func(arr);
 
+    for (int n = 0; n < 100; n++) {
+        Float x = Float(n) / Float(100);
+        CHECK(x == func(x), "x == f(x)");
+    }
 }
 
 int main() {

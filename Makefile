@@ -18,3 +18,6 @@ test_binned_pdf: test_binned_pdf.cpp BinnedPDF.hpp check_macro.hpp
 test_piecewise_linear_function: test_piecewise_linear_function.cpp PiecewiseLinearFunction.hpp check_macro.hpp
 	${CC} -o test_piecewise_linear_function ${CPP_FLAGS} ${VALUES} test_piecewise_linear_function.cpp
 
+clean: 
+	rm driver test_binned_pdf test_piecewise_linear_function
+
