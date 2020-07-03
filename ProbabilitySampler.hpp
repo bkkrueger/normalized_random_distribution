@@ -102,10 +102,16 @@ private:
             x = generate_random_number();
             sum += x;
         }
-        /*Float denom = Float{1} / sum;
-        for (auto & x : values) {
-            x *= denom;
-        }*/
+        // If N_SUM == 1, we're just testing the how sampling from the input
+        // distribution gets mapped to the output distribution without any
+        // transformations.  This shows if the sampling process itself is
+        // flawed.
+        if constexpr (N_SUM > 1) {
+            Float denom = Float{1} / sum;
+            for (auto & x : values) {
+                x *= denom;
+            }
+        }
         if constexpr (deposit_all) {
             return values;
         } else {
