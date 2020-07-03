@@ -66,7 +66,7 @@ public:
 private:
 
     bool continue_condition_() {
-        constexpr int N_ITER = 10000000;
+        constexpr int N_ITER = 1000000;
         return pdf_.count() < N_ITER;
     }
 

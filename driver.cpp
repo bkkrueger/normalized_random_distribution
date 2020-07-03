@@ -15,8 +15,9 @@ void do_stuff() {
     constexpr int N_SUM{USER_N_SUM};
 
     std::array<Float,N_BINS-1> inverse_cdf_bins;
+    Float denom = Float{1} / Float(N_BINS);
     for (int n = 0; n < inverse_cdf_bins.size(); n++) {
-        inverse_cdf_bins[n] = (Float(n) + Float{0.5}) / Float(N_BINS);
+        inverse_cdf_bins[n] = Float(n+1) * denom;
     }
 
     PiecewiseLinearFunction<Float, N_BINS> inverse_cdf(inverse_cdf_bins);

@@ -1,7 +1,7 @@
 CC := /usr/local/Cellar/gcc/9.3.0_1/bin/g++-9
 
-NBINS := 100
-NSUM := 1
+NBINS := 256
+NSUM := 2
 VALUES = -D USER_N_BINS=${NBINS} -D USER_N_SUM=${NSUM}
 
 CPP_FLAGS = -std=c++17
