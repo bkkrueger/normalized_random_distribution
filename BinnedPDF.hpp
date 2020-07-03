@@ -1,3 +1,6 @@
+#ifndef BINNED_PDF_HPP
+#define BINNED_PDF_HPP
+
 #include <array>
 #include <cassert>
 
@@ -38,6 +41,7 @@ public:
         assert(x < Float{1});
         std::size_t index = std::size_t(x * N_BINS);
         pdf_[index]++;
+        count_++;
     }
 
     // ------------------------------------------------------------------------
@@ -63,6 +67,7 @@ public:
 
     // ------------------------------------------------------------------------
     // Get the values in all bins
+    // TODO: Also get a normalized version
 
 public:
 
@@ -82,3 +87,5 @@ public:
     }
 
 };
+
+#endif // BINNED_PDF_HPP

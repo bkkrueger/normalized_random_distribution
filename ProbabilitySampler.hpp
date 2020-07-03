@@ -1,3 +1,6 @@
+#ifndef PROBABILITY_SAMPLER_HPP
+#define PROBABILITY_SAMPLER_HPP
+
 #include "BinnedPDF.hpp"
 #include "PiecewiseLinearFunction.hpp"
 
@@ -63,7 +66,8 @@ public:
 private:
 
     bool continue_condition_() {
-        return pdf_.count();
+        constexpr int N_ITER = 10000000;
+        return pdf_.count() < N_ITER;
     }
 
     // ------------------------------------------------------------------------
@@ -98,10 +102,10 @@ private:
             x = generate_random_number();
             sum += x;
         }
-        Float denom = Float{1} / sum;
+        /*Float denom = Float{1} / sum;
         for (auto & x : values) {
             x *= denom;
-        }
+        }*/
         if constexpr (deposit_all) {
             return values;
         } else {
@@ -131,10 +135,9 @@ private:
 public:
 
     void generate() {
-        // Set up
-        // -- Zero out PDF
+        // Zero out PDF
         pdf_.clear();
-        // -- Set up random number generator
+        // Set up random number generator
         set_up_rng_();
         // Sampling loop
         while (continue_condition_()) {
@@ -142,6 +145,43 @@ public:
             auto values = generate_normalized_values_();
             deposit_values_(std::move(values));
         }
+    }
+
+    // ------------------------------------------------------------------------
+    // Get the PDF
+
+public:
+
+    auto & get_pdf() {
+        return pdf_;
+    }
+
+    // ------------------------------------------------------------------------
+    // Get the bin edges
+    // TODO: This should be an operation of the BinnedPDF class.
+
+public:
+
+    auto get_bin_edges() {
+        std::array<Float, N_BINS+1> edges;
+        for (int n = 0; n <= N_BINS; n++) {
+            edges[n] = Float(n) / Float(N_BINS);
+        }
+        return edges;
+    }
+
+    // ------------------------------------------------------------------------
+    // Get the bin centers
+    // TODO: This should be an operation of the BinnedPDF class.
+
+public:
+
+    auto get_bin_centers() {
+        std::array<Float, N_BINS> centers;
+        for (int n = 0; n < N_BINS; n++) {
+            centers[n] = (Float(n) + Float{0.5}) / Float(N_BINS);
+        }
+        return centers;
     }
 
     // ------------------------------------------------------------------------
@@ -196,3 +236,5 @@ private:
     // statistics than the opposite side.
 
 };
+
+#endif // PROBABILITY_SAMPLER_HPP

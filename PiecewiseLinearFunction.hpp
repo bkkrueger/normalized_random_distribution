@@ -1,3 +1,6 @@
+#ifndef PIECEWISE_LINEAR_FUNCTION_HPP
+#define PIECEWISE_LINEAR_FUNCTION_HPP
+
 #include <array>
 #include <cassert>
 //#include <iostream>
@@ -163,3 +166,5 @@ public:
     }
 
 };
+
+#endif // PIECEWISE_LINEAR_FUNCTION_HPP
