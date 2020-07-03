@@ -99,6 +99,32 @@ public:
         return pdf_[index];
     }
 
+    // ------------------------------------------------------------------------
+    // Get the bin edges
+
+public:
+
+    auto get_bin_edges() {
+        std::array<Float, N_BINS+1> edges;
+        for (int n = 0; n <= N_BINS; n++) {
+            edges[n] = Float(n) / Float(N_BINS);
+        }
+        return edges;
+    }
+
+    // ------------------------------------------------------------------------
+    // Get the bin centers
+
+public:
+
+    auto get_bin_centers() {
+        std::array<Float, N_BINS> centers;
+        for (int n = 0; n < N_BINS; n++) {
+            centers[n] = (Float(n) + Float{0.5}) / Float(N_BINS);
+        }
+        return centers;
+    }
+
 };
 
 #endif // BINNED_PDF_HPP

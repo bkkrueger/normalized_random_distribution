@@ -7,6 +7,17 @@
 #include <iostream>
 #include <sstream>
 
+template <typename Float>
+auto func(Float x) {
+    return Float{0.5} + (x < Float{0.5} ? 1 : -1) *
+        (Float{2} * x * (Float{1} - x) - Float{0.5});
+    constexpr Float k{-1};
+    return x*(1 - k*(x - 1)*(x - 1/2));
+    return (x*(6 + 6*k - 6*x - 3*k*x + 2*x*x))/(2 + 3*k);
+    return x * (Float{2} - x);
+    return x;
+}
+
 template<bool deposit_all>
 void do_stuff() {
 
@@ -15,18 +26,20 @@ void do_stuff() {
     constexpr int N_SUM{USER_N_SUM};
 
     std::array<Float,N_BINS-1> inverse_cdf_bins;
-    Float denom = Float{1} / Float(N_BINS);
+    using Function = PiecewiseLinearFunction<Float, N_BINS>;
+    auto bin_edges = Function::get_bin_edges();
     for (int n = 0; n < inverse_cdf_bins.size(); n++) {
-        inverse_cdf_bins[n] = Float(n+1) * denom;
+        inverse_cdf_bins[n] = func(bin_edges[n]);
     }
 
-    PiecewiseLinearFunction<Float, N_BINS> inverse_cdf(inverse_cdf_bins);
+    Function inverse_cdf(inverse_cdf_bins);
 
     ProbabilitySampler<deposit_all, Float, N_SUM, N_BINS> sampler(inverse_cdf);
 
-    auto x = sampler.get_bin_centers();
     sampler.generate();
-    auto y = sampler.get_pdf().get_pdf();
+    auto pdf = sampler.get_pdf();
+    auto x = pdf.get_bin_centers();
+    auto y = pdf.get_pdf();
     assert(x.size() == y.size());
 
     std::stringstream ss;

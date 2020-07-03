@@ -56,7 +56,9 @@ private:
 
     // ------------------------------------------------------------------------
 
-    Float bin_edge_(std::size_t const & n) {
+    static Float bin_edge_(std::size_t const & n) {
+        assert(n >= 0);
+        assert(n <= N_BINS);
         return Float(n) / Float{N_BINS};
     }
 
@@ -147,6 +149,19 @@ public:
 
         // Construct coefficients off of the newly-interpolated points.
         construct_coefficients_(all_points);
+    }
+
+    // ------------------------------------------------------------------------
+    // Get bin edges (helps with constructing function)
+
+public:
+
+    static auto get_bin_edges() {
+        std::array<Float, N_BINS-1> bin_edges;
+        for (int n = 0; n < N_BINS; n++) {
+            bin_edges[n] = bin_edge_(n+1);
+        }
+        return bin_edges;
     }
 
     // ------------------------------------------------------------------------
