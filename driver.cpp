@@ -26,7 +26,7 @@ void do_stuff() {
 
     auto x = sampler.get_bin_centers();
     sampler.generate();
-    auto y = sampler.get_pdf().get_all_bins();
+    auto y = sampler.get_pdf().get_pdf();
     assert(x.size() == y.size());
 
     std::stringstream ss;

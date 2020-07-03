@@ -66,8 +66,21 @@ public:
     }
 
     // ------------------------------------------------------------------------
+    // Get the PDF
+
+public:
+
+    auto get_pdf() {
+        std::array<Float, N_BINS> pdf_norm;
+        Float denom = Float{1} / Float(count_);
+        for (int n = 0; n < N_BINS; n++) {
+            pdf_norm[n] = pdf_[n] * denom;
+        }
+        return pdf_norm;
+    }
+
+    // ------------------------------------------------------------------------
     // Get the values in all bins
-    // TODO: Also get a normalized version
 
 public:
 
