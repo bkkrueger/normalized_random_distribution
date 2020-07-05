@@ -36,8 +36,7 @@ void do_stuff() {
 
     ProbabilitySampler<deposit_all, Float, N_SUM, N_BINS> sampler(inverse_cdf);
 
-    sampler.generate();
-    auto pdf = sampler.get_pdf();
+    auto pdf = sampler.generate();
     auto x = pdf.get_bin_centers();
     auto y = pdf.get_pdf();
     assert(x.size() == y.size());

@@ -6,6 +6,7 @@
 
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <random>
 #include <type_traits>
 
@@ -65,9 +66,9 @@ public:
 
 private:
 
-    bool continue_condition_() {
+    bool continue_condition_(BinnedPDF<Float, int, N_BINS> const & pdf) {
         constexpr int N_ITER = 1000000;
-        return pdf_.count() < N_ITER;
+        return pdf.count() < N_ITER;
     }
 
     // ------------------------------------------------------------------------
@@ -87,7 +88,16 @@ private:
 
     auto generate_random_number() {
         auto y = uniform_(engine_);
-        return inverse_cdf_(y);
+        auto x = inverse_cdf_(y);
+        // If all values are zero (very unlikely but not impossible), then
+        // we'll end up with a division-by-zero error in the normalization
+        // step.  This forces all values to be in the range of (0,1] (we'll
+        // deal with things exactly equal to one later).  This does introduce a
+        // bias, but it should be much smaller than any practically-possible
+        // error (likely on par with the biases we already have because they
+        // are inherent in using finite-precision floating-point values).
+        x = std::nextafter(x, Float{1});
+        return x;
     }
 
     // ------------------------------------------------------------------------
@@ -112,6 +122,17 @@ private:
                 x *= denom;
             }
         }
+        // If all values except one are zero (very unlikely but not
+        // impossible), then we'll end up with a single value normalized
+        // exactly to one.  However the assumption is that values are not in
+        // [0,1] but instead in [0,1).  This forces all values to be in the
+        // correct range.  It does introduce a bias, but it should be smaller
+        // than any practically-possible error (likely on part with the biases
+        // we already have because they are inherent in using finite-precision
+        // floating-point values).
+        for (auto & x : values) {
+            x = std::nextafter(x, Float{0});
+        }
         if constexpr (deposit_all) {
             return values;
         } else {
@@ -125,13 +146,13 @@ private:
 private:
 
     template <typename Value>
-    void deposit_values_(Value && v) {
+    void deposit_values_(Value && v, BinnedPDF<Float, int, N_BINS> & pdf) {
         if constexpr (deposit_all) {
             for (auto & x : v) {
-                pdf_.deposit(x);
+                pdf.deposit(x);
             }
         } else {
-            pdf_.deposit(v);
+            pdf.deposit(v);
         }
     }
 
@@ -140,26 +161,22 @@ private:
 
 public:
 
-    void generate() {
+    auto generate() {
+        // Declare the PDF to be constructed
+        BinnedPDF<Float, int, N_BINS> pdf;
         // Zero out PDF
-        pdf_.clear();
+        // TODO -- Is this needed anymore?
+        pdf.clear();
         // Set up random number generator
         set_up_rng_();
         // Sampling loop
-        while (continue_condition_()) {
+        while (continue_condition_(pdf)) {
             // TODO: parallelize?
             auto values = generate_normalized_values_();
-            deposit_values_(std::move(values));
+            deposit_values_(std::move(values), pdf);
         }
-    }
-
-    // ------------------------------------------------------------------------
-    // Get the PDF
-
-public:
-
-    auto & get_pdf() {
-        return pdf_;
+        // Return result
+        return pdf;
     }
 
     // ------------------------------------------------------------------------
@@ -169,9 +186,6 @@ private:
 
     // Inverse CDF of input distribution
     PiecewiseLinearFunction<Float, N_BINS> inverse_cdf_;
-
-    // PDF of output distribution
-    BinnedPDF<Float, int, N_BINS> pdf_;
 
     // Random number generator data
     decltype(get_rng_engine_<Float>()) engine_;

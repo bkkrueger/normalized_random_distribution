@@ -61,7 +61,7 @@ public:
 
 public:
 
-    auto count() {
+    auto count() const {
         return count_;
     }
 
