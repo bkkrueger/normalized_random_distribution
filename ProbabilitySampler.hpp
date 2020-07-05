@@ -1,6 +1,14 @@
 #ifndef PROBABILITY_SAMPLER_HPP
 #define PROBABILITY_SAMPLER_HPP
 
+// TODO
+// -- Template on the RNG.  Then I can provide a fake "random" number generator
+//    that just provides edge-case values to reliably demonstrate whether or
+//    not it works as expected.
+// -- Make generic on the type of the inverse CDF.  It just needs to be
+//    callable, which would allow, e.g., an analytic inverse CDF.
+// -- Would it make sense to collapse this into one or more free functions?
+
 #include "BinnedPDF.hpp"
 #include "PiecewiseLinearFunction.hpp"
 
